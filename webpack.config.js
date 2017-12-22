@@ -1,0 +1,51 @@
+var webpack = require('webpack');
+var path = require('path');
+
+var publicPath = 'http://localhost:3000/';
+var hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true';
+
+var devConfig = {
+    entry: {
+        example1: ['./client/example1', hotMiddlewareScript],
+        example2: ['./client/example2', hotMiddlewareScript],
+    },
+    output: {
+        filename: './[name]/bundle.js',
+        path: path.resolve(__dirname, './public'),
+        publicPath: publicPath
+    },
+    devtool: 'eval-source-map',
+    module: {
+        rules: [{
+            test: /\.js$/,
+            exclude: /(node_modules|bower_components)/,
+            use: {
+                loader: 'babel-loader',
+                options: {
+                    presets: ['es2015']
+                }
+            }
+        }, {
+            test: /\.(png|jpg)$/,
+            use: 'url-loader?limit=8192&context=client&name=[path][name].[ext]'
+        }, {
+            test: /\.(css|scss)$/,
+            use: [
+                'style-loader',
+                'css-loader?sourceMap',
+                'resolve-url-loader',
+                'sass-loader?sourceMap'
+            ]
+        }]
+    },
+    plugins: [
+        new webpack.optimize.CommonsChunkPlugin({
+            names: ['vendor'],
+            filename: './[name]/bundle.js'
+        }),
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.NoEmitOnErrorsPlugin()
+    ]
+};
+
+module.exports = devConfig;

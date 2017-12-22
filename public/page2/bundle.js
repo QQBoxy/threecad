@@ -1,0 +1,1 @@
+webpackJsonp([1],{83:function(n,c){},87:function(n,c,e){"use strict";e(83),e(29),console.log("client/page2/index.js")}},[87]);
