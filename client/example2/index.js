@@ -28,10 +28,10 @@ switch (parseInt(Math.random()*5, 10)) {
         var geometry = new THREE.SphereBufferGeometry(1, 16, 16);
         break;
     case 3:
-        var geometry = new THREE.TorusKnotBufferGeometry(0.5, 0.2, 50, 16);
+        var geometry = new THREE.TorusBufferGeometry(0.5, 0.2, 16, 50);
         break;
     case 4:
-        var geometry = new THREE.TorusBufferGeometry(0.5, 0.2, 16, 50);
+        var geometry = new THREE.TorusKnotBufferGeometry(0.5, 0.2, 50, 16);
         break;
     default:
         var geometry = new THREE.Geometry();
