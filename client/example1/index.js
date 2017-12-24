@@ -1,7 +1,7 @@
 /**************************************************
  File: index.js
- Name: Example1
- Explain: Example1
+ Name: Example 1
+ Explain: Example 1
 ****************************************By QQBoxy*/
 /*jshint node: true, esversion: 6 */
 'use strict';
