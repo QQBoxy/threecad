@@ -41,6 +41,7 @@
     "sass-loader": "^6.0.1",
     "style-loader": "^0.13.1",
     "three": "^0.89.0",
+    "three-stl-loader": "^1.0.6",
     "url-loader": "^0.5.7",
     "webpack": "^2.2.1",
     "webpack-dev-middleware": "^1.10.1",

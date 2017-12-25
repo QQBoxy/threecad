@@ -4,7 +4,13 @@
           box-sizing: border-box;
 }
 
+html {
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
 body {
     background: lightgray;
+    margin: 0;
     font-size: 14px;
 }
