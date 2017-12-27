@@ -6,10 +6,12 @@ var hotMiddlewareScript = 'webpack-hot-middleware/client?reload=true';
 
 var devConfig = {
     entry: {
+        home: ['./client/home', hotMiddlewareScript],
         example1: ['./client/example1', hotMiddlewareScript],
         example2: ['./client/example2', hotMiddlewareScript],
         example3: ['./client/example3', hotMiddlewareScript],
         example4: ['./client/example4', hotMiddlewareScript],
+        example5: ['./client/example5', hotMiddlewareScript],
     },
     output: {
         filename: './[name]/bundle.js',

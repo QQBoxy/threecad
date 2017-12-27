@@ -1,0 +1,28 @@
+@import '../common/common';
+
+html, body {
+    margin: 0px auto;
+}
+
+div {
+    margin: 0px auto;
+    width: 600px;
+}
+
+div h1 {
+    text-align: center;
+}
+
+ul {
+    border-radius: 10px;
+    background: #3399ff;
+    padding: 20px;
+    list-style-type: none;
+}
+
+ul li {
+    padding: 10px;
+    background: #cce5ff;
+    border-left: 5px solid royalblue;
+    margin: 10px;
+}

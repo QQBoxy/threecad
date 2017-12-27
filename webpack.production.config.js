@@ -5,10 +5,12 @@ var CleanWebpackPlugin = require('clean-webpack-plugin');
 
 var productionConfig = [{
     entry: {
+        home: './client/home',
         example1: './client/example1',
         example2: './client/example2',
         example3: './client/example3',
         example4: './client/example4',
+        example5: './client/example5',
     },
     output: {
         filename: './[name]/bundle.js',
