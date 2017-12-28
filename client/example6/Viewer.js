@@ -6,6 +6,7 @@
 /*jshint node: true, esversion: 6 */
 'use strict';
 import * as THREE from 'three';
+import TrackballControls from 'three-trackballcontrols';
 
 var Viewer = function (container) {
     this.container = container;
@@ -15,6 +16,7 @@ var Viewer = function (container) {
     this.light = null;
     this.cameraFov = 60;
     this.meshs = [];
+    this.controls = null;
 };
 
 Viewer.prototype.init = function () {
@@ -29,6 +31,9 @@ Viewer.prototype.init = function () {
     self.renderer = new THREE.WebGLRenderer();
     self.renderer.setSize(window.innerWidth, window.innerHeight);
     self.container.appendChild(self.renderer.domElement);
+
+    //控制設定
+    self.control();
 
     //光源設定
     var ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -57,6 +62,7 @@ Viewer.prototype.animate = function () {
     var self = this;
     //循環動畫
     requestAnimationFrame(self.animate.bind(self));
+    self.controls.update();
     self.renderer.render(self.scene, self.camera);
 };
 
@@ -77,10 +83,17 @@ Viewer.prototype.add = function (geometry) {
 
 Viewer.prototype.clear = function (geometry) {
     var self = this;
-
     for (var key in self.meshs) {
         self.scene.remove(self.meshs[key]);
     }
+};
+
+Viewer.prototype.control = function () {
+    var self = this;
+    self.controls = new TrackballControls(
+        self.camera,
+        self.renderer.domElement
+    );
 };
 
 module.exports = Viewer;
