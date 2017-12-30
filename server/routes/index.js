@@ -7,4 +7,5 @@ module.exports = function (app) {
     app.use('/example5', require('./example5'));
     app.use('/example6', require('./example6'));
     app.use('/example7', require('./example7'));
+    app.use('/example8', require('./example8'));
 };
