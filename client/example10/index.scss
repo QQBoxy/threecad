@@ -1,0 +1,17 @@
+@import '../common/common';
+
+.openfile {
+    position: absolute;
+    background-image: url('../images/open_white_18dp.png');
+    width: 72px;
+    height: 72px;
+    left: 0px;
+}
+
+.deletefile {
+    position: absolute;
+    background-image: url('../images/delete_white_18dp.png');
+    width: 72px;
+    height: 72px;
+    left: 72px;
+}

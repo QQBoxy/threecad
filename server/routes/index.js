@@ -9,4 +9,5 @@ module.exports = function (app) {
     app.use('/example7', require('./example7'));
     app.use('/example8', require('./example8'));
     app.use('/example9', require('./example9'));
+    app.use('/example10', require('./example10'));
 };
