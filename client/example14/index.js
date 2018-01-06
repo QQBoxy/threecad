@@ -19,7 +19,8 @@ import Viewer from './Viewer';
 var editor = new Editor();
 var viewer = new Viewer($("#viewer"));
 viewer.init();
-viewer.setMouseDown(editor.mouseDown);
+viewer.setEditor(editor);
+
 
 $("#openfile").onchange = function (e) {
     var file = e.target.files[0];

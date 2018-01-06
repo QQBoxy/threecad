@@ -24,6 +24,8 @@ var Viewer = function (container) {
     this.intersects = [];
     this.intersected = null;
     this.mouseDownAction = {};
+    this.mouseUpAction = {};
+    this.action = () => {};
 };
 
 Viewer.prototype.init = function () {
@@ -52,7 +54,7 @@ Viewer.prototype.init = function () {
 
     self.scene.add(self.camera); //需要將相機加入場景，才能正常顯示掛在相機的光源
 
-    self.camera.position.z = 50;
+    self.camera.position.z = 100;
 
     //調整視窗大小
     window.addEventListener('resize', self.onResize.bind(self), false);
@@ -80,6 +82,7 @@ Viewer.prototype.animate = function () {
     self.controls.update();
     self.renderer.render(self.scene, self.camera);
     self.checkHighlight();
+    self.action();
 };
 
 Viewer.prototype.add = function (bufferGeometry) {
@@ -180,19 +183,27 @@ Viewer.prototype.onMouseDown = function (event) {
     if (self.intersects.length > 0) {
         self.controls.enabled = false;
         console.log(self.intersects[0]);
-        self.mouseDownAction(self);
+        self.mouseDownAction(self, event);
     }
 };
 
 Viewer.prototype.onMouseUp = function (event) {
     var self = this;
+    self.mouseUpAction(self, event);
     self.controls.enabled = true;
 };
 
-Viewer.prototype.setMouseDown = function (action) {
+Viewer.prototype.setEditor = function (editor) {
     var self = this;
-    self.mouseDownAction = action;
+    self.mouseDownAction = (self, event) => {
+        editor.mouseDown(self, event);
+    };
+    self.mouseUpAction = (self, event) => {
+        editor.mouseUp(self, event);
+    };
+    self.action = (self, event) => {
+        editor.action(self, event);
+    };
 };
-
 
 module.exports = Viewer;
