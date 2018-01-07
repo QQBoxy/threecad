@@ -20,6 +20,7 @@ var productionConfig = [{
         example12: './client/example12',
         example13: './client/example13',
         example14: './client/example14',
+        example15: './client/example15',
     },
     output: {
         filename: './[name]/bundle.js',
