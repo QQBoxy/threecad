@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Example 16</title>
+    <% if (env === "production") { %>
+    <link rel="stylesheet" href="/example16/index.css">
+    <% } %>
+</head>
+<body>
+    <div>
+        <label for="openfile">
+            <div class="openfile" style="cursor: pointer;"></div>
+        </label>
+        <input id="openfile" type="file" accept=".stl" style="display: none;" />
+    </div>
+    <div id="deletefile" class="deletefile" style="cursor: pointer;"></div>
+    <div id="viewer"></div>
+
+    <script src="/vendor/bundle.js"></script>
+    <script src="/example16/bundle.js"></script>
+    <% if (env !== "production" && reload === true) { %>
+    <script src="/reload/reload.js"></script>
+    <% } %>
+</body>
+</html>

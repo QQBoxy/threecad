@@ -22,6 +22,7 @@ var devConfig = {
         example13: ['./client/example13', hotMiddlewareScript],
         example14: ['./client/example14', hotMiddlewareScript],
         example15: ['./client/example15', hotMiddlewareScript],
+        example16: ['./client/example16', hotMiddlewareScript],
     },
     output: {
         filename: './[name]/bundle.js',
