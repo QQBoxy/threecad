@@ -425,7 +425,7 @@ TOPOLOGY.createFromGeometry = function( geometry )
 
 TOPOLOGY.Topology.prototype.convertToGeometry = function()
 {
-    var geometry = new THREE.Geometry();
+	var geometry = new THREE.Geometry();
 	
 	for (var i = 0; i < this.vertex.length; i++)
 	{
