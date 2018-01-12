@@ -217,27 +217,57 @@ TOPOLOGY.Topology.prototype.edgeIDWithFaces = function(fa, fb)
 
 ///////////////////////////////////////////////////////////////////////////////
 
-TOPOLOGY.Topology.prototype.computeCenters = function()
-{
-	for (var i = 0; i < this.edge.length; i++)
-	{
+TOPOLOGY.Topology.prototype.computeCenter = function (vertexID) {
+	var i = 0;
+	var j = 0;
+	var k = 0;
+	var vertex = null;
+	var edge = null;
+	var face = null;
+	var vertices = this.vertex;
+	var edges = this.edge;
+	var faces = this.face;
+	var point = vertices[vertexID];
+	for (i = 0; i < point.edgeIDs.length;i++) {
+		edge = edges[point.edgeIDs[i]];
+		if (edge == null) continue;
+		edge.center = new THREE.Vector3(0, 0, 0);
+		edge.center.add(vertices[edge.vertexIDs[0]].vector3);
+		edge.center.add(vertices[edge.vertexIDs[1]].vector3);
+		edge.center.divideScalar(2);
+	}
+
+	for (j = 0; j < point.faceIDs.length; j++) {
+		face = faces[point.faceIDs[j]];
+		if (face == null) continue;
+		face.center = new THREE.Vector3(0, 0, 0);
+		for (k = 0; k < face.vertexIDs.length; k++) {
+			face.center.add(vertices[face.vertexIDs[k]].vector3);
+		}
+		face.center.divideScalar(face.vertexIDs.length);
+
+	}
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+TOPOLOGY.Topology.prototype.computeCenters = function () {
+	for (var i = 0; i < this.edge.length; i++) {
 		var edge = this.edge[i];
 		if (edge == null) continue;
-		edge.center = new THREE.Vector3(0,0,0);
-		edge.center.add( this.vertex[ edge.vertexIDs[0] ].vector3 );
-		edge.center.add( this.vertex[ edge.vertexIDs[1] ].vector3 );
-		edge.center.divideScalar(2);	
+		edge.center = new THREE.Vector3(0, 0, 0);
+		edge.center.add(this.vertex[edge.vertexIDs[0]].vector3);
+		edge.center.add(this.vertex[edge.vertexIDs[1]].vector3);
+		edge.center.divideScalar(2);
 	}
-	for (var i = 0; i < this.face.length; i++)
-	{
+	for (var i = 0; i < this.face.length; i++) {
 		var face = this.face[i];
 		if (face == null) continue;
-		face.center = new THREE.Vector3(0,0,0);
-		for (var v = 0; v < face.vertexIDs.length; v++)
-		{
-			face.center.add( this.vertex[ face.vertexIDs[v] ].vector3 );
+		face.center = new THREE.Vector3(0, 0, 0);
+		for (var v = 0; v < face.vertexIDs.length; v++) {
+			face.center.add(this.vertex[face.vertexIDs[v]].vector3);
 		}
-		face.center.divideScalar( face.vertexIDs.length );	
+		face.center.divideScalar(face.vertexIDs.length);
 	}
 }
 

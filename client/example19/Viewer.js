@@ -85,10 +85,8 @@ Viewer.prototype.animate = function () {
     self.action();
 };
 
-Viewer.prototype.add = function (bufferGeometry) {
+Viewer.prototype.add = function (geometry) {
     var self = this;
-
-    console.log(bufferGeometry);
 
     //顏色設定
     var baseColor = new THREE.Color(Math.floor(Math.random() * 16777215));
@@ -98,16 +96,7 @@ Viewer.prototype.add = function (bufferGeometry) {
         ).negate().rgbNumber()
     );
 
-    var geometry = {};
-    if (bufferGeometry.constructor.name === 'BufferGeometry') {
-        console.log("BufferGeometry");
-        geometry = new THREE.Geometry().fromBufferGeometry(bufferGeometry);
-    } else {
-        console.log("Geometry");
-        geometry = bufferGeometry;
-    }
-
-    console.log(geometry.faces);
+    geometry = (geometry.faces) ? geometry : new THREE.Geometry().fromBufferGeometry(geometry);
 
     for (var i = 0; i < geometry.faces.length; i++) {
         geometry.faces[i].color = baseColor.clone();

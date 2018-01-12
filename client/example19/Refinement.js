@@ -27,9 +27,32 @@ Refinement.prototype.computeNormal = function (vA, vB, vC) {
 
 Refinement.prototype.midedge = function () {
     var self = this;
+    var vertexIdA = 0;
+    var vertexIdB = 0;
+    var vertexIdC = 0;
+    var vertexIdD = 0;
+    var vertexIdE = 0;
+    var faceTop = null;
+    var faceBottom = null;
+
+    var edgeAC = 0;
+    var edgeBC = 0;
+    var edgeAE = 0;
+    var edgeBE = 0;
+    var edgeAD = 0;
+    var edgeBD = 0;
+    var edgeCD = 0;
+    var edgeDE = 0;
+
+    var faceACD = 0;
+    var faceCBD = 0;
+    var faceAED = 0;
+    var faceEBD = 0;
 
     var geometry = self.viewer.meshs[0].geometry;
     var topology = self.viewer.meshs[0].topology;
+
+    console.log(self.viewer.meshs[0]);
 
     var len = topology.edge.length;
 
@@ -40,40 +63,54 @@ Refinement.prototype.midedge = function () {
         var vertexIDs = edge.vertexIDs;
         var faceIDs = edge.faceIDs;
 
+        //判斷邊線是否為封閉
+        var isClosed = (faceIDs.length > 1);
+
         //建立新的邊線中點 D
         var VertexD = topology.create('vertex');
-        VertexD.vector3 = center.clone();
+        VertexD.vector3 = center.clone();VertexD.vector3 = center.clone();
 
-        var faceTop = topology.face[faceIDs[0]];
-        var faceBottom = topology.face[faceIDs[1]];
+        faceTop = topology.face[faceIDs[0]];
+        if (isClosed) {
+            faceBottom = topology.face[faceIDs[1]];
+        }
 
         //取得頂點ID
-        var vertexIdA = vertexIDs[0];
-        var vertexIdB = vertexIDs[1];
-        var vertexIdC = faceTop.vertexIDs.find(
+        vertexIdA = vertexIDs[0];
+        vertexIdB = vertexIDs[1];
+        vertexIdC = faceTop.vertexIDs.find(
             (element, index, array) => (vertexIDs.indexOf(element) === -1)
         );
-        var vertexIdD = VertexD.ID;
-        var vertexIdE = faceBottom.vertexIDs.find(
-            (element, index, array) => (vertexIDs.indexOf(element) === -1)
-        );
-        
+        vertexIdD = VertexD.ID;
+        if (isClosed) {
+            vertexIdE = faceBottom.vertexIDs.find(
+                (element, index, array) => (vertexIDs.indexOf(element) === -1)
+            );
+        }
+
         //舊有的邊線
-        var edgeAC = topology.edgeIDWithVertices(vertexIdA, vertexIdC);
-        var edgeBC = topology.edgeIDWithVertices(vertexIdB, vertexIdC);
-        var edgeAE = topology.edgeIDWithVertices(vertexIdA, vertexIdE);
-        var edgeBE = topology.edgeIDWithVertices(vertexIdB, vertexIdE);
+        edgeAC = topology.edgeIDWithVertices(vertexIdC, vertexIdA);
+        edgeBC = topology.edgeIDWithVertices(vertexIdB, vertexIdC);
+        if (isClosed) {
+            edgeAE = topology.edgeIDWithVertices(vertexIdA, vertexIdE);
+            edgeBE = topology.edgeIDWithVertices(vertexIdE, vertexIdB);
+        }
+
         //創造新的邊線
-        var edgeAD = topology.create('edge').ID;
-        var edgeBD = topology.create('edge').ID;
-        var edgeCD = topology.create('edge').ID;
-        var edgeED = topology.create('edge').ID;
+        edgeAD = topology.create('edge').ID;
+        edgeBD = topology.create('edge').ID;
+        edgeCD = topology.create('edge').ID;
+        if (isClosed) {
+            edgeDE = topology.create('edge').ID;
+        }
 
         //創造新的面
-        var faceACD = topology.create('face').ID;
-        var faceCBD = topology.create('face').ID;
-        var faceAED = topology.create('face').ID;
-        var faceEBD = topology.create('face').ID;
+        faceACD = topology.create('face').ID;
+        faceCBD = topology.create('face').ID;
+        if (isClosed) {
+            faceAED = topology.create('face').ID;
+            faceEBD = topology.create('face').ID;
+        }
 
         //計算原始網格法向量
         var topNormal = self.computeNormal(
@@ -89,25 +126,33 @@ Refinement.prototype.midedge = function () {
         );
         
         //Va, Vb, Vc, Eab, Ebc, Eca, F
-        if (topNormal.dot(subNormal) >=0 ) {
+        if (topNormal.dot(subNormal) >= 0) {
             topology.addTriangleData(vertexIdC, vertexIdD, vertexIdA, edgeCD, edgeAD, edgeAC, faceACD);
-            topology.addTriangleData(vertexIdA, vertexIdD, vertexIdE, edgeAD, edgeED, edgeAE, faceAED);
-            topology.addTriangleData(vertexIdE, vertexIdD, vertexIdB, edgeED, edgeBD, edgeBE, faceEBD);
+            if (isClosed) {
+                topology.addTriangleData(vertexIdA, vertexIdD, vertexIdE, edgeAD, edgeDE, edgeAE, faceAED);
+                topology.addTriangleData(vertexIdE, vertexIdD, vertexIdB, edgeDE, edgeBD, edgeBE, faceEBD);
+            }
             topology.addTriangleData(vertexIdB, vertexIdD, vertexIdC, edgeBD, edgeCD, edgeBC, faceCBD);
         } else {
             topology.addTriangleData(vertexIdC, vertexIdA, vertexIdD, edgeAC, edgeAD, edgeCD, faceACD);
-            topology.addTriangleData(vertexIdA, vertexIdE, vertexIdD, edgeAE, edgeED, edgeAD, faceAED);
-            topology.addTriangleData(vertexIdE, vertexIdB, vertexIdD, edgeBE, edgeBD, edgeED, faceEBD);
+            if (isClosed) {
+                topology.addTriangleData(vertexIdA, vertexIdE, vertexIdD, edgeAE, edgeDE, edgeAD, faceAED);
+                topology.addTriangleData(vertexIdE, vertexIdB, vertexIdD, edgeBE, edgeBD, edgeDE, faceEBD);
+            }
             topology.addTriangleData(vertexIdB, vertexIdC, vertexIdD, edgeBC, edgeCD, edgeBD, faceCBD);
         }
 
         topology.remove(edge);
         topology.remove(faceTop);
-        topology.remove(faceBottom);
+        if (isClosed) {
+            topology.remove(faceBottom);
+        }
     }
 
     var newGeometry = topology.convertToGeometry();
+
     self.viewer.scene.remove(self.viewer.meshs[0]);
+    self.viewer.meshs.shift();
     self.viewer.add(newGeometry);
 };
 
