@@ -1,0 +1,34 @@
+@import '../common/common';
+
+.openfile {
+    position: absolute;
+    background-image: url('../images/open_white_18dp.png');
+    width: 72px;
+    height: 72px;
+    left: 0px;
+    &:hover {
+        top: -2px;
+    }
+}
+
+.deletefile {
+    position: absolute;
+    background-image: url('../images/delete_white_18dp.png');
+    width: 72px;
+    height: 72px;
+    left: 72px;
+    &:hover {
+        top: -2px;
+    }
+}
+
+.refinement {
+    position: absolute;
+    background-image: url('../images/refinement_white_18dp.png');
+    width: 72px;
+    height: 72px;
+    top: 72px;
+    &:hover {
+        left: 2px;
+    }
+}
