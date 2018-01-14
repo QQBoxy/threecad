@@ -12,7 +12,7 @@ const $ = JSBoxy.$;
 let list = () => {
     let i = 0;
     let opt = "";
-    for(i=1;i<=26;i++) {
+    for(i=1;i<=25;i++) {
         opt += `<li><a href="./example${i}">Example ${i}</a></li>`;
     }
     return opt;
