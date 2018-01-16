@@ -2,8 +2,10 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Example 19</title>
-    <link rel="stylesheet" href="./example19/index.css">
+    <title>Example 22</title>
+    <% if (env === "production") { %>
+    <link rel="stylesheet" href="/example22/index.css">
+    <% } %>
 </head>
 <body>
     <div>
@@ -16,8 +18,10 @@
     <div id="refinement" class="refinement" style="cursor: pointer;"></div>
     <div id="viewer"></div>
 
-    <script src="./vendor/bundle.js"></script>
-    <script src="./example19/bundle.js"></script>
+    <script src="/vendor/bundle.js"></script>
+    <script src="/example22/bundle.js"></script>
+    <% if (env !== "production" && reload === true) { %>
+    <script src="/reload/reload.js"></script>
+    <% } %>
 </body>
-
 </html>

@@ -21,4 +21,5 @@ module.exports = function (app) {
     app.use('/example19', require('./example19'));
     app.use('/example20', require('./example20'));
     app.use('/example21', require('./example21'));
+    app.use('/example22', require('./example22'));
 };

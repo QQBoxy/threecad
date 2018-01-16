@@ -90,9 +90,7 @@ Viewer.prototype.add = function (bufferGeometry) {
     self.meshs.push(mesh);
 
     var geometry = new THREE.Geometry().fromBufferGeometry(bufferGeometry);
-
     var topology = new TOPOLOGY.createFromGeometry(geometry);
-    console.log(topology);
 
     self.topologys.push(topology);
 };
@@ -119,7 +117,6 @@ Viewer.prototype.onMouseDown = function (event) {
     self.mouse.y = - (event.clientY / window.innerHeight ) * 2 + 1;
 
     self.raycaster.setFromCamera(self.mouse, self.camera);
-
     self.intersects = self.raycaster.intersectObjects(self.scene.children);
 
     if (self.intersects.length > 0) {
@@ -133,12 +130,18 @@ Viewer.prototype.onMouseDown = function (event) {
         
         mesh.position.copy(self.intersects[0].point);
         self.scene.add(mesh);
-
         self.meshs.push(mesh);
 
-        var id = self.intersects[0].faceIndex;
-        var faceID = self.topologys[0].vertex[id].faceIDs[0];
-        var edges = self.topologys[0].face[faceID].edgeIDs;
+        // Method 1
+        var faceID = self.intersects[0].faceIndex / 3;
+        
+        // Method 2
+        // var faceIndex = self.intersects[0].faceIndex;
+        // var faceID = self.topologys[0].vertex[faceIndex].faceIDs[0];
+
+        var face = self.topologys[0].face[faceID];
+        var edges = face.edgeIDs;
+
         for (var i=0;i<edges.length;i++) {
             var center = self.topologys[0].edge[edges[i]].center;
             var geometry = new THREE.SphereBufferGeometry(0.2, 16, 16);

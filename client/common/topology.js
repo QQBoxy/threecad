@@ -7,7 +7,6 @@ import * as THREE from 'three';
 var TOPOLOGY = TOPOLOGY || {};
 
 ///////////////////////////////////////////////////////////////////////////////
-
 TOPOLOGY.Vertex = function(params)
 {
     this.ID = -1;
@@ -15,7 +14,7 @@ TOPOLOGY.Vertex = function(params)
     this.vector3 = new THREE.Vector3(); // coordinates
     this.edgeIDs = []; // length n
     this.faceIDs = []; // length n
-    
+   
     setParameters(this, params);   
 }
 
@@ -26,27 +25,25 @@ TOPOLOGY.Edge = function(params)
     this.center    = new THREE.Vector3(); // midpoint
     this.vertexIDs = []; // length 2
     this.faceIDs   = []; // length 2
+   
     setParameters(this, params);   
 }
 
 TOPOLOGY.Face = function (params)
 {
    this.ID = -1;
-   
    this.type = "face";
    this.center    = new THREE.Vector3(); // centroid
-   
    this.vertexIDs = []; // length n
    this.edgeIDs   = []; // length n
    this.colorID = -1;
    
    setParameters(this, params);   
-} 
+}
 
 var setParameters = function(obj, params)
 {
-   if (params === undefined) return;
-
+	if (params === undefined) return;
     for (var arg in obj)
         if (params[arg] !== undefined )
 			obj[arg] = params[arg];
@@ -62,19 +59,19 @@ TOPOLOGY.Topology = function()
 ///////////////////////////////////////////////////////////////////////////////
 // convenience Array methods
 
-Array.prototype.pushUnique = function(obj) 
+Array.prototype.pushUnique = function(obj)
 {
 	if (this.indexOf(obj) == -1) this.push(obj);
 }
 
-Array.prototype.spliceData = function(data) //ex: [1,2,3] ; spliceData([1,2]); output = 3;
-{	
-	//this = topo.type[i].sub typeIDs
-	var dataArray = (data instanceof Array) ? data : [data];	//�P�_data�O�_��Array
+// ex: [0, 1, 2].spliceData([0, 1]); output = 2;
+Array.prototype.spliceData = function(data)
+{
+	var dataArray = (data instanceof Array) ? data : [data];
 	for (var a = 0; a < dataArray.length; a++)
 	{
 		var i = this.indexOf(dataArray[a]); 
-		if ( i != -1 ) this.splice( i, 1 );	//�װůx�} BUG!
+		if ( i != -1 ) this.splice( i, 1 );
 	}
 }
 
@@ -84,7 +81,7 @@ Array.prototype.changeData = function(oldData, newData)
 		if (this[i] == oldData) this[i] = newData;
 }
 
-Array.prototype.clone = function() 
+Array.prototype.clone = function()
 {
 	return this.concat();
 }
@@ -141,26 +138,23 @@ TOPOLOGY.Topology.prototype.remove = function(obj)
 	// remove references to obj stored in ID lists of other types
 	var otherTypes = ["vertex", "edge", "face"];
 	otherTypes.spliceData(obj.type);
+	
 	for (var t = 0; t < 2; t++)
 	{
 		var otherType = otherTypes[t];		
 		for (var i = 0; i < obj[otherType + "IDs"].length; i++)
 		{
-			// get ID of otherType that contains a reference to obj(�R�����ѦҦ�������ID ex:�R��face[0],�N���ѦҦ����I�B�䪺�ѦҤ��e�R��)
-			var ID = obj[otherType + "IDs"][i];	
+			// get ID of otherType that contains a reference to obj
+			var ID = obj[otherType + "IDs"][i];
 			this[otherType][ID][obj.type + "IDs"].spliceData( obj.ID );
 		}
 	}
-	
-	if(obj.ID == this[obj.type].length-1)
-	{
-		//�p�G�n�R����ID���}�C�̫�A�����ϥ�.pop()
+
+	// pop off the last simplex of given type, and reindex it to given ID
+	if (obj.ID === this[obj.type].length - 1 ) {
 		this[obj.type].pop();
-	}
-	else
-	{
-		// pop off the last simplex of given type, and reindex it to given ID	�N�̫�@��ID���R����ID
-		this.reindex( this[obj.type].pop(), obj.ID );
+	} else {
+		this.reindex(this[obj.type].pop(), obj.ID);
 	}
 }
 
@@ -169,7 +163,7 @@ TOPOLOGY.Topology.prototype.reindex = function(obj, newIndex)
 	var oldIndex = obj.ID;
 	obj.ID = newIndex;
 	this[obj.type][newIndex] = obj;
-	
+
 	// change references to obj stored in ID lists of other types
 	var otherTypes = ["vertex", "edge", "face"];
 	otherTypes.spliceData(obj.type);
@@ -182,7 +176,6 @@ TOPOLOGY.Topology.prototype.reindex = function(obj, newIndex)
 			// get ID of otherType that contains a reference to obj
 			var ID = obj[otherType + "IDs"][i];
 			this[otherType][ID][obj.type + "IDs"].changeData( oldIndex, newIndex );
-			
 		}
 	}
 }
@@ -455,7 +448,7 @@ TOPOLOGY.createFromGeometry = function( geometry )
 
 TOPOLOGY.Topology.prototype.convertToGeometry = function()
 {
-	var geometry = new THREE.Geometry();
+    var geometry = new THREE.Geometry();
 	
 	for (var i = 0; i < this.vertex.length; i++)
 	{
@@ -463,9 +456,9 @@ TOPOLOGY.Topology.prototype.convertToGeometry = function()
 		
 		geometry.vertices[i] = this.vertex[i].vector3.clone();
 	}
-	
+
 	this.computeFaceColoring();
-	
+
 	var palette = [new THREE.Color(0x333333), new THREE.Color(0x999999), new THREE.Color(0x666666), 
 				   new THREE.Color(0xCCCCCC), new THREE.Color(0x111111)];
 
@@ -494,19 +487,21 @@ TOPOLOGY.Topology.prototype.computeFaceColoring = function()
 	for (var i = 0; i < this.face.length; i++)
 	{
 		if (this.face[i] == null) continue;
-		
+
 		var adjacentFaces = [];
 		for (var j = 0; j < this.face[i].edgeIDs.length; j++)
 		{
 			var eID = this.face[i].edgeIDs[j];
 			adjacentFaces = adjacentFaces.concat( this.edge[eID].faceIDs );
 		}
+		
 		var colorIDs = [0,1,2,3,4,5,6];
 		for (var k = 0; k < adjacentFaces.length; k++)
 		{
 			var fID = adjacentFaces[k];
 			colorIDs.spliceData( this.face[fID].colorID );
 		}
+
 		this.face[i].colorID = colorIDs[0];
 	}
 }
