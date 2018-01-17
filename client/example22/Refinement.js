@@ -9,7 +9,7 @@ import * as THREE from 'three';
 
 var Refinement = function () {
     this.viewer = null;
-    this.oldlen = 0;
+    this.newEdgeIDs = [];
 };
 
 Refinement.prototype.setViewer = function (viewer) {
@@ -24,6 +24,22 @@ Refinement.prototype.computeNormal = function (vA, vB, vC) {
     ab.subVectors(vA, vB);
     cb.cross(ab);
     return cb.normalize();
+};
+
+Refinement.prototype.flipTest = function (AID, BID, CID, DID) {
+    var self = this;
+    var topology = self.viewer.meshs[0].topology;
+    var vertices = topology.vertex;
+    var VT = 6;
+    var VA = vertices[AID].edgeIDs.length;
+    var VB = vertices[BID].edgeIDs.length;
+    var VC = vertices[CID].edgeIDs.length;
+    var VD = vertices[DID].edgeIDs.length;
+
+    var V_before = (VT - VA) * (VT - VA) + (VT - VB) * (VT - VB) + (VT - VC) * (VT - VC) + (VT - VD) * (VT - VD);
+    var V_after = (VT - VA - 1) * (VT - VA - 1) + (VT - VB - 1) * (VT - VB - 1) + (VT - VC + 1) * (VT - VC + 1) + (VT - VD + 1) * (VT - VD + 1);
+
+    return (V_before > V_after);
 };
 
 Refinement.prototype.midedge = function () {
@@ -102,8 +118,10 @@ Refinement.prototype.midedge = function () {
         edgeAD = topology.create('edge').ID;
         edgeBD = topology.create('edge').ID;
         edgeCD = topology.create('edge').ID;
+        self.newEdgeIDs.push(edgeCD);
         if (isClosed) {
             edgeDE = topology.create('edge').ID;
+            self.newEdgeIDs.push(edgeDE);
         }
 
         //創造新的面
@@ -135,6 +153,8 @@ Refinement.prototype.midedge = function () {
                 topology.addTriangleData(vertexIdE, vertexIdD, vertexIdB, edgeDE, edgeBD, edgeBE, faceEBD);
             }
             topology.addTriangleData(vertexIdB, vertexIdD, vertexIdC, edgeBD, edgeCD, edgeBC, faceCBD);
+            topology.edge[edgeCD].flag = true;
+            topology.edge[edgeDE].flag = true;
         } else {
             topology.addTriangleData(vertexIdC, vertexIdA, vertexIdD, edgeAC, edgeAD, edgeCD, faceACD);
             if (isClosed) {
@@ -142,21 +162,24 @@ Refinement.prototype.midedge = function () {
                 topology.addTriangleData(vertexIdE, vertexIdB, vertexIdD, edgeBE, edgeBD, edgeDE, faceEBD);
             }
             topology.addTriangleData(vertexIdB, vertexIdC, vertexIdD, edgeBC, edgeCD, edgeBD, faceCBD);
+            topology.edge[edgeCD].flag = false;
+            topology.edge[edgeDE].flag = false;
         }
 
+        self.newEdgeIDs.pop();
+        self.newEdgeIDs.push(edge.ID);
         topology.remove(edge);
         topology.remove(faceTop);
         if (isClosed) {
             topology.remove(faceBottom);
         }
-        self.oldlen -= 1;
     }
 
     var newGeometry = topology.convertToGeometry();
 
     self.viewer.scene.remove(self.viewer.meshs[0]);
     self.viewer.meshs.shift();
-    self.viewer.add(newGeometry);
+    self.viewer.add(newGeometry, topology);
 };
 
 Refinement.prototype.flipedge = function () {
@@ -182,42 +205,55 @@ Refinement.prototype.flipedge = function () {
     var geometry = self.viewer.meshs[0].geometry;
     var topology = self.viewer.meshs[0].topology;
 
-    console.log(self.viewer.meshs[0]);
-
-    var len = topology.edge.length;
-
+    var len = self.newEdgeIDs.length;
 
     var i = 0;
-    for (i = self.oldlen; i < len; i++) {
-        var edge = topology.edge[i];
+    for (i = 0; i < len; i++) {
+        var id = self.newEdgeIDs[i];
+        var edge = topology.edge[id];
         var vertexIDs = edge.vertexIDs;
         var faceIDs = edge.faceIDs;
 
+        faceABC = faceIDs[0];
+        faceABD = faceIDs[1];
+
         vertexIdA = vertexIDs[0];
         vertexIdB = vertexIDs[1];
-        vertexIdC = topology.face[faceIDs[0]].vertexIDs.find(
+        vertexIdC = topology.face[faceABC].vertexIDs.find(
             (element, index, array) => (vertexIDs.indexOf(element) === -1)
         );
-        vertexIdD = topology.face[faceIDs[1]].vertexIDs.find(
+        vertexIdD = topology.face[faceABD].vertexIDs.find(
             (element, index, array) => (vertexIDs.indexOf(element) === -1)
         );
 
-        
+        var distanceAB = topology.vertex[vertexIdA].vector3.distanceTo(topology.vertex[vertexIdB].vector3);
+        var distanceCD = topology.vertex[vertexIdC].vector3.distanceTo(topology.vertex[vertexIdD].vector3);
+        var isNeedFlip = (distanceAB > distanceCD);
+        if (isNeedFlip) {
+            edgeAB = topology.edgeIDWithVertices(vertexIdA, vertexIdB);
+            edgeCD = topology.create('edge').ID; //創造新的邊線
+            edgeAC = topology.edgeIDWithVertices(vertexIdA, vertexIdC);
+            edgeBC = topology.edgeIDWithVertices(vertexIdB, vertexIdC);
+            edgeAD = topology.edgeIDWithVertices(vertexIdA, vertexIdD);
+            edgeBD = topology.edgeIDWithVertices(vertexIdB, vertexIdD);
 
-        edgeAB = topology.edgeIDWithVertices(vertexIdA, vertexIdB);
-        edgeCD = topology.edgeIDWithVertices(vertexIdC, vertexIdD);
-        edgeAC = topology.edgeIDWithVertices(vertexIdA, vertexIdC);
-        edgeBC = topology.edgeIDWithVertices(vertexIdB, vertexIdC);
-        edgeAD = topology.edgeIDWithVertices(vertexIdA, vertexIdD);
-        edgeBD = topology.edgeIDWithVertices(vertexIdB, vertexIdD);
+            //創造新的面
+            faceACD = topology.create('face').ID;
+            faceBCD = topology.create('face').ID;
+            
+            // 逆時針
+            topology.addTriangleData(vertexIdA, vertexIdD, vertexIdC, edgeAD, edgeCD, edgeAC, faceACD);
+            topology.addTriangleData(vertexIdB, vertexIdC, vertexIdD, edgeBC, edgeCD, edgeBD, faceBCD);
 
-        faceABC = 0;
-        faceABD = 0;
-
-        // QQBoxy 2018.01.16 17:55
-
+            topology.remove(topology.face[faceABC]);
+            topology.remove(topology.face[faceABD]);
+            topology.remove(topology.edge[edgeAB]);
+        }
     }
-
+    var newGeometry = topology.convertToGeometry();
+    self.viewer.scene.remove(self.viewer.meshs[0]);
+    self.viewer.meshs.shift();
+    self.viewer.add(newGeometry, topology);
 };
 
 module.exports = Refinement;

@@ -85,7 +85,7 @@ Viewer.prototype.animate = function () {
     self.action();
 };
 
-Viewer.prototype.add = function (geometry) {
+Viewer.prototype.add = function (geometry, topology) {
     var self = this;
 
     //顏色設定
@@ -108,14 +108,18 @@ Viewer.prototype.add = function (geometry) {
     var material = new THREE.MeshPhongMaterial({
         vertexColors: THREE.FaceColors,
         flatShading: true, //單一法向量渲染
-        //wireframe: true //線架構
+        wireframe: true //線架構
     });
 
     //網格物件設定
     var mesh = new THREE.Mesh(geometry, material);
 
     //加入拓樸資訊
-    mesh.topology = new TOPOLOGY.createFromGeometry(geometry);
+    if (topology) {
+        mesh.topology = topology;
+    } else {
+        mesh.topology = new TOPOLOGY.createFromGeometry(geometry);
+    }
 
     //加入顏色資訊
     mesh.baseColor = baseColor;
